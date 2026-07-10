@@ -21,6 +21,9 @@
     --c4-p2: #b06ae0;
     --c4-board: #e6dbe1;
     --c4-empty: #faf5f8;
+    /* Moara: jogador 1 verde, jogador 2 laranja */
+    --moara-a: #16a34a;
+    --moara-b: #fb923c;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; height: 100%; }
@@ -98,11 +101,25 @@
     background: var(--c4-empty);
     border-radius: 50%;
     cursor: pointer;
-    transition: background 0.12s;
+    position: relative;
   }
-  .c4cell.p1 { background: var(--c4-p1); }
-  .c4cell.p2 { background: var(--c4-p2); }
-  .c4cell.win { box-shadow: 0 0 0 4px #22c55e inset; }
+  .c4disc {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+  }
+  .c4disc.p1 { background: var(--c4-p1); }
+  .c4disc.p2 { background: var(--c4-p2); }
+  .c4disc.win { box-shadow: 0 0 0 4px #22c55e inset; }
+  .c4disc.dropping { animation: c4drop var(--dur, 0.4s) ease-in both; }
+  @keyframes c4drop {
+    0%   { transform: translateY(var(--from)); }
+    55%  { transform: translateY(0); }
+    68%  { transform: translateY(-28%); }
+    80%  { transform: translateY(0); }
+    88%  { transform: translateY(-12%); }
+    100% { transform: translateY(0); }
+  }
 
   /* ---- Jogo do Galo ---- */
   #tttboard {
@@ -126,6 +143,7 @@
     font-weight: 800;
     line-height: 1;
     color: var(--red);
+    animation: tttpop 0.38s ease-out both;
   }
   .mark-o {
     width: 64%;
@@ -133,6 +151,13 @@
     border: clamp(8px, 2.6vw, 13px) solid var(--blue);
     border-radius: 50%;
     box-sizing: border-box;
+    animation: tttpop 0.38s ease-out both;
+  }
+  @keyframes tttpop {
+    0%   { transform: translateY(0) scale(0.3); opacity: 0; }
+    45%  { transform: translateY(-28%) scale(1.12); opacity: 1; }
+    75%  { transform: translateY(0) scale(1); }
+    100% { transform: translateY(0) scale(1); }
   }
   .tttcell.win { background: #dcfce7; }
 
@@ -144,18 +169,47 @@
   .btn-restart:active { transform: scale(0.98); }
 
   /* ---- Moara ---- */
-  #moaraboard { display: flex; justify-content: center; }
+  .moara-layout { display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .moara-tray {
+    display: flex; flex-direction: column; gap: 6px; align-items: center;
+    min-width: 26px;
+  }
+  .tray-piece {
+    width: 20px; height: 20px; border-radius: 50%;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+  }
+  #moaraboard { flex: 1 1 auto; min-width: 0; display: flex; justify-content: center; }
   .moara-svg {
-    width: 100%; max-width: 360px; height: auto; display: block;
+    width: 100%; max-width: 320px; height: auto; display: block;
     background: #f3e9ef; border-radius: 18px; padding: 8px;
     box-shadow: 0 8px 20px rgba(176,106,224,0.22);
   }
-  .mline { stroke: #8f7d88; stroke-width: 2.4; stroke-linecap: round; }
-  .mpoint-empty { fill: #cbb9c5; }
-  .mpoint-a { fill: var(--c4-p1); }
-  .mpoint-b { fill: var(--c4-p2); }
+  .mline { stroke: #000000; stroke-width: 2.4; stroke-linecap: round; }
+  .mpoint-empty { fill: #000000; }
+  .mpoint-a { fill: var(--moara-a); }
+  .mpoint-b { fill: var(--moara-b); }
   .mpoint-sel { stroke: #22c55e; stroke-width: 3.5; }
   .mpoint-remove { stroke: #ef4444; stroke-width: 3.5; }
+
+  /* ---- Painel de vitória ---- */
+  .win-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    display: none; align-items: center; justify-content: center;
+    background: rgba(30,41,59,0.55); padding: 24px;
+  }
+  .win-overlay.show { display: flex; animation: winfade 0.2s ease-out; }
+  .win-card {
+    background: #fff; border-radius: 26px; padding: 30px 26px 26px;
+    text-align: center; width: 100%; max-width: 330px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+    animation: winpop 0.45s cubic-bezier(0.2,0.85,0.3,1.3) both;
+  }
+  .win-big { font-size: 42px; font-weight: 900; color: var(--blue-dark); line-height: 1.05; }
+  .win-sub { font-size: 26px; font-weight: 800; color: var(--ink); margin-top: 6px; }
+  .win-sub .disc { vertical-align: middle; margin-left: 4px; }
+  .win-card .btn-restart { margin-top: 24px; width: 100%; }
+  @keyframes winfade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes winpop { 0% { transform: scale(0.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 </style>
 </head>
 <body>
@@ -174,8 +228,16 @@
       <span>Jogo do Galo<span class="menu-sub">3 em linha para ganhar</span></span>
     </button>
     <button class="menu-card" onclick="show('moara')">
-      <span class="menu-emoji">⚙️</span>
-      <span>Moara<span class="menu-sub">Faz moinhos e come as peças</span></span>
+      <span class="menu-emoji" aria-hidden="true">
+        <svg viewBox="0 0 40 40" width="42" height="42" style="display:block">
+          <ellipse cx="20" cy="34" rx="15" ry="3.2" fill="rgba(0,0,0,0.12)"/>
+          <circle cx="20" cy="22" r="15" fill="#15803d"/>
+          <circle cx="20" cy="19" r="15" fill="#16a34a"/>
+          <circle cx="20" cy="19" r="9.5" fill="none" stroke="#bbf7d0" stroke-width="2"/>
+          <circle cx="20" cy="19" r="3.4" fill="#bbf7d0"/>
+        </svg>
+      </span>
+      <span>Moinho<span class="menu-sub">Faz moinhos e come as peças</span></span>
     </button>
   </section>
 
@@ -205,24 +267,59 @@
   <section id="moara" class="screen">
     <div class="topbar">
       <button class="btn-back" onclick="show('menu')">← Menu</button>
-      <h2 class="game-title">Moara</h2>
+      <h2 class="game-title">Moinho</h2>
     </div>
     <div id="moarastatus" class="status"></div>
-    <div id="moaraboard"></div>
+    <div class="moara-layout">
+      <div id="moaratray-b" class="moara-tray"></div>
+      <div id="moaraboard"></div>
+      <div id="moaratray-a" class="moara-tray"></div>
+    </div>
     <button class="btn-restart" onclick="MOARA.reset()">↻ Jogar de novo</button>
   </section>
 
 </div>
 
+<!-- Painel de vitória (comum a todos os jogos) -->
+<div id="winoverlay" class="win-overlay" onclick="hideWin()">
+  <div class="win-card" onclick="event.stopPropagation()">
+    <div class="win-big">Conseguiste!</div>
+    <div class="win-sub">Ganhaste! <span id="winwho"></span></div>
+    <button class="btn-restart" onclick="winRestart(event)">↻ Jogar de novo</button>
+  </div>
+</div>
+
 <script>
 // ---------- Navegação entre ecrãs ----------
+let activeGame = null;
 function show(id) {
+  hideWin();
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
-  if (id === "c4") C4.reset();
-  if (id === "ttt") TTT.reset();
-  if (id === "moara") MOARA.reset();
+  if (id === "c4") { C4.reset(); activeGame = "c4"; }
+  if (id === "ttt") { TTT.reset(); activeGame = "ttt"; }
+  if (id === "moara") { MOARA.reset(); activeGame = "moara"; }
   window.scrollTo(0, 0);
+}
+
+// ---------- Painel de vitória (comum a todos os jogos) ----------
+function showWin(whoHTML) {
+  document.getElementById("winwho").innerHTML = whoHTML;
+  document.getElementById("winoverlay").classList.add("show");
+}
+function hideWin() {
+  document.getElementById("winoverlay").classList.remove("show");
+}
+function winRestart(e) {
+  e.stopPropagation();
+  hideWin();
+  if (activeGame === "c4") C4.reset();
+  else if (activeGame === "ttt") TTT.reset();
+  else if (activeGame === "moara") MOARA.reset();
+}
+// Peça grande do vencedor mostrada no painel
+function bigDisc(color) {
+  return `<span class="disc" style="width:30px;height:30px;background:${color};vertical-align:middle"></span>`;
 }
 
 // ================= 4 EM LINHA =================
@@ -246,10 +343,13 @@ const C4 = (function () {
       for (let c = 0; c < COLS; c++) {
         const cell = document.createElement("div");
         cell.className = "c4cell";
-        if (grid[r][c] === 1) cell.classList.add("p1");
-        if (grid[r][c] === 2) cell.classList.add("p2");
         cell.onclick = () => drop(c);
         cell.dataset.r = r; cell.dataset.c = c;
+        if (grid[r][c] !== 0) {
+          const d = document.createElement("div");
+          d.className = "c4disc " + (grid[r][c] === 1 ? "p1" : "p2");
+          cell.appendChild(d);
+        }
         boardEl.appendChild(cell);
       }
     }
@@ -258,6 +358,10 @@ const C4 = (function () {
   function cellEl(r, c) {
     return boardEl.querySelector(`[data-r="${r}"][data-c="${c}"]`);
   }
+  function discAt(r, c) {
+    const cell = cellEl(r, c);
+    return cell ? cell.querySelector(".c4disc") : null;
+  }
 
   function drop(col) {
     if (over) return;
@@ -265,10 +369,15 @@ const C4 = (function () {
     for (let r = ROWS - 1; r >= 0; r--) {
       if (grid[r][col] === 0) {
         grid[r][col] = current;
-        const el = cellEl(r, col);
-        el.classList.add(current === 1 ? "p1" : "p2");
+        const cell = cellEl(r, col);
+        const d = document.createElement("div");
+        d.className = "c4disc dropping " + (current === 1 ? "p1" : "p2");
+        // cai desde acima do topo (r+1 casas + espaços) até esta posição
+        d.style.setProperty("--from", `calc((-100% - 6px) * ${r + 1})`);
+        d.style.setProperty("--dur", (0.22 + (r + 1) * 0.05).toFixed(2) + "s");
+        cell.appendChild(d);
         const line = winningLine(r, col);
-        if (line) { over = true; line.forEach(([wr, wc]) => cellEl(wr, wc).classList.add("win")); win(); }
+        if (line) { over = true; line.forEach(([wr, wc]) => { const wd = discAt(wr, wc); if (wd) wd.classList.add("win"); }); win(); }
         else if (isFull()) { over = true; draw(); }
         else { current = current === 1 ? 2 : 1; updateStatus(); }
         return;
@@ -297,7 +406,10 @@ const C4 = (function () {
 
   const discHTML = p => `<span class="disc" style="background:${p===1?'var(--c4-p1)':'var(--c4-p2)'}"></span>`;
   function updateStatus() { statusEl.innerHTML = `Vez do ${discHTML(current)}`; }
-  function win() { statusEl.innerHTML = `${discHTML(current)} ganhou! 🎉`; }
+  function win() {
+    statusEl.innerHTML = `${discHTML(current)} ganhou! 🎉`;
+    showWin(bigDisc(current === 1 ? "var(--c4-p1)" : "var(--c4-p2)"));
+  }
   function draw() { statusEl.textContent = "Empate! 🤝"; }
 
   return { reset };
@@ -348,7 +460,15 @@ const TTT = (function () {
     el.innerHTML = markHTML(current);
     el.classList.add(current.toLowerCase());
     const line = winningLine();
-    if (line) { over = true; line.forEach(idx => boardEl.querySelector(`[data-i="${idx}"]`).classList.add("win")); statusEl.innerHTML = `${statusMark(current)} ganhou! 🎉`; }
+    if (line) {
+      over = true;
+      line.forEach(idx => boardEl.querySelector(`[data-i="${idx}"]`).classList.add("win"));
+      statusEl.innerHTML = `${statusMark(current)} ganhou! 🎉`;
+      const big = current === "X"
+        ? '<span style="font-size:34px;font-weight:900;color:var(--red);line-height:1;vertical-align:middle">✕</span>'
+        : '<span style="display:inline-block;width:26px;height:26px;border:6px solid var(--blue);border-radius:50%;box-sizing:border-box;vertical-align:middle"></span>';
+      showWin(big);
+    }
     else if (cells.every(c => c)) { over = true; statusEl.textContent = "Empate! 🤝"; }
     else { current = current === "X" ? "O" : "X"; updateStatus(); }
   }
@@ -375,6 +495,8 @@ const TTT = (function () {
 const MOARA = (function () {
   const boardEl = document.getElementById("moaraboard");
   const statusEl = document.getElementById("moarastatus");
+  const trayA = document.getElementById("moaratray-a");
+  const trayB = document.getElementById("moaratray-b");
 
   // Posições dos 24 pontos (viewBox 200x200)
   const POINTS = [
@@ -400,7 +522,7 @@ const MOARA = (function () {
   let board, current, toPlace, phase, mode, selected, over;
 
   const opp = p => (p === "A" ? "B" : "A");
-  const disc = p => `<span class="disc" style="background:${p === "A" ? "var(--c4-p1)" : "var(--c4-p2)"}"></span>`;
+  const disc = p => `<span class="disc" style="background:${p === "A" ? "var(--moara-a)" : "var(--moara-b)"}"></span>`;
   const onBoard = p => board.filter(v => v === p).length;
   const canFly = p => toPlace[p] === 0 && onBoard(p) === 3;
   const completesMill = (i, p) => MILLS_OF[i].some(m => m.every(c => board[c] === p));
@@ -457,6 +579,7 @@ const MOARA = (function () {
     over = true;
     render();
     statusEl.innerHTML = `${disc(winner)} ganhou! 🎉`;
+    showWin(bigDisc(winner === "A" ? "var(--moara-a)" : "var(--moara-b)"));
   }
 
   function click(i) {
@@ -526,6 +649,19 @@ const MOARA = (function () {
     }
     s += `</svg>`;
     boardEl.innerHTML = s;
+    renderTrays();
+  }
+
+  // Peças por colocar: laranja (B) à esquerda, verde (A) à direita
+  function renderTrays() {
+    trayB.innerHTML = trayHTML("B");
+    trayA.innerHTML = trayHTML("A");
+  }
+  function trayHTML(p) {
+    const c = p === "A" ? "var(--moara-a)" : "var(--moara-b)";
+    let h = "";
+    for (let k = 0; k < toPlace[p]; k++) h += `<span class="tray-piece" style="background:${c}"></span>`;
+    return h;
   }
 
   return { reset, click };
