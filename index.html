@@ -75,7 +75,7 @@
     font-size: 18px; font-weight: 700; color: var(--blue); cursor: pointer;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   }
-  .game-title { font-size: 22px; font-weight: 800; color: var(--blue-dark); margin: 0; }
+  .game-title { font-size: 22px; font-weight: 800; color: #ef4444; margin: 0; }
 
   .status {
     text-align: center; font-size: 20px; font-weight: 700; min-height: 28px;
@@ -162,9 +162,9 @@
   .tttcell.win { background: #dcfce7; }
 
   .btn-restart {
-    background: var(--blue); color: #fff; border: none; border-radius: 14px;
+    background: #3b82f6; color: #fff; border: none; border-radius: 14px;
     padding: 14px; font-size: 18px; font-weight: 700; cursor: pointer;
-    box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+    box-shadow: 0 4px 12px rgba(37,99,235,0.25);
   }
   .btn-restart:active { transform: scale(0.98); }
 
@@ -188,8 +188,48 @@
   .mpoint-empty { fill: #000000; }
   .mpoint-a { fill: var(--moara-a); }
   .mpoint-b { fill: var(--moara-b); }
-  .mpoint-sel { stroke: #22c55e; stroke-width: 3.5; }
+  .mpoint-sel { stroke: #ec4899; stroke-width: 3.5; }
   .mpoint-remove { stroke: #ef4444; stroke-width: 3.5; }
+
+  /* ---- Tabuleiro 8x8 (Damas e Xadrez) ---- */
+  .board8 {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    width: 100%; max-width: 380px; aspect-ratio: 1 / 1; margin: 0 auto;
+    border-radius: 10px; overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.22);
+  }
+  .sq { position: relative; display: flex; align-items: center; justify-content: center; }
+  .sq.light { background: #f0d9b5; }
+  .sq.dark { background: #b58863; }
+  .sq.sel { box-shadow: inset 0 0 0 4px #ec4899; }
+  .sq.move::after {
+    content: ""; position: absolute; width: 30%; height: 30%;
+    border-radius: 50%; background: rgba(0,0,0,0.28);
+  }
+  /* peças de damas */
+  .dpiece {
+    width: 74%; height: 74%; border-radius: 50%; position: relative;
+    box-shadow: inset 0 3px 4px rgba(255,255,255,0.35), inset 0 -4px 5px rgba(0,0,0,0.3), 0 2px 3px rgba(0,0,0,0.35);
+  }
+  .dpiece.p1 { background: #f8fafc; border: 2px solid #cbd5e1; }
+  .dpiece.p2 { background: #ef4444; border: 2px solid #b91c1c; }
+  .dpiece.king::after {
+    content: "♛"; position: absolute; inset: 0; display: flex;
+    align-items: center; justify-content: center;
+    font-size: 62%; color: #fbbf24; text-shadow: 0 1px 1px rgba(0,0,0,0.4);
+  }
+  /* peças de xadrez */
+  .cpiece { font-size: clamp(22px, 8vw, 40px); line-height: 1; user-select: none; }
+  .cpiece.w { color: #ffffff; text-shadow: 0 1px 1px #000, 0 -1px 1px #000, 1px 0 1px #000, -1px 0 1px #000; }
+  .cpiece.b { color: #1f2937; text-shadow: 0 1px 2px rgba(0,0,0,0.35); }
+
+  /* ---- Imagem de esparguete ---- */
+  .pasta-img { text-align: center; margin-top: 2px; }
+  .pasta-svg { width: 90%; max-width: 340px; height: auto; display: inline-block; }
+  .broc-img { text-align: center; margin-top: 14px; }
+  .broc-svg { width: 46%; max-width: 190px; height: auto; display: inline-block; }
 
   /* ---- Painel de vitória ---- */
   .win-overlay {
@@ -199,15 +239,30 @@
   }
   .win-overlay.show { display: flex; animation: winfade 0.2s ease-out; }
   .win-card {
+    position: relative;
     background: #fff; border-radius: 26px; padding: 30px 26px 26px;
     text-align: center; width: 100%; max-width: 330px;
     box-shadow: 0 24px 60px rgba(0,0,0,0.35);
     animation: winpop 0.45s cubic-bezier(0.2,0.85,0.3,1.3) both;
   }
+  .win-fw {
+    position: absolute; top: 50%; font-size: 38px; line-height: 1;
+    animation: fwtwinkle 0.9s ease-in-out infinite alternate;
+  }
+  .win-fw-l { left: 6px; }
+  .win-fw-r { right: 6px; animation-name: fwtwinkleR; animation-delay: 0.45s; }
+  @keyframes fwtwinkle {
+    0%   { transform: translateY(-50%) scale(0.8) rotate(-8deg); opacity: 0.6; }
+    100% { transform: translateY(-50%) scale(1.15) rotate(8deg); opacity: 1; }
+  }
+  @keyframes fwtwinkleR {
+    0%   { transform: translateY(-50%) scaleX(-1) scale(0.8) rotate(-8deg); opacity: 0.6; }
+    100% { transform: translateY(-50%) scaleX(-1) scale(1.15) rotate(8deg); opacity: 1; }
+  }
   .win-big { font-size: 42px; font-weight: 900; color: var(--blue-dark); line-height: 1.05; }
-  .win-sub { font-size: 26px; font-weight: 800; color: var(--ink); margin-top: 6px; }
-  .win-sub .disc { vertical-align: middle; margin-left: 4px; }
-  .win-card .btn-restart { margin-top: 24px; width: 100%; }
+  .win-sub { font-size: 42px; font-weight: 900; color: #ec4899; line-height: 1.05; margin-top: 6px; }
+  .win-who { text-align: center; margin: 16px 0 2px; height: 46px; line-height: 46px; }
+  .win-card .btn-restart { margin-top: 18px; width: 100%; }
   @keyframes winfade { from { opacity: 0; } to { opacity: 1; } }
   @keyframes winpop { 0% { transform: scale(0.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 </style>
@@ -231,13 +286,28 @@
       <span class="menu-emoji" aria-hidden="true">
         <svg viewBox="0 0 40 40" width="42" height="42" style="display:block">
           <ellipse cx="20" cy="34" rx="15" ry="3.2" fill="rgba(0,0,0,0.12)"/>
-          <circle cx="20" cy="22" r="15" fill="#15803d"/>
-          <circle cx="20" cy="19" r="15" fill="#16a34a"/>
-          <circle cx="20" cy="19" r="9.5" fill="none" stroke="#bbf7d0" stroke-width="2"/>
-          <circle cx="20" cy="19" r="3.4" fill="#bbf7d0"/>
+          <circle cx="20" cy="22" r="15" fill="#e07b1e"/>
+          <circle cx="20" cy="19" r="15" fill="#fb923c"/>
+          <circle cx="20" cy="19" r="9.5" fill="none" stroke="#ffedd5" stroke-width="2"/>
+          <circle cx="20" cy="19" r="3.4" fill="#ffedd5"/>
         </svg>
       </span>
       <span>Moinho<span class="menu-sub">Faz moinhos e come as peças</span></span>
+    </button>
+    <button class="menu-card" onclick="show('damas')">
+      <span class="menu-emoji" aria-hidden="true">
+        <svg viewBox="0 0 40 40" width="42" height="42" style="display:block">
+          <ellipse cx="20" cy="34" rx="15" ry="3.2" fill="rgba(0,0,0,0.12)"/>
+          <circle cx="20" cy="22" r="15" fill="#b91c1c"/>
+          <circle cx="20" cy="19" r="15" fill="#ef4444"/>
+          <circle cx="20" cy="19" r="9" fill="none" stroke="#fca5a5" stroke-width="2.5"/>
+        </svg>
+      </span>
+      <span>Damas<span class="menu-sub">Come na diagonal e faz damas</span></span>
+    </button>
+    <button class="menu-card" onclick="show('xadrez')">
+      <span class="menu-emoji" aria-hidden="true">♟️</span>
+      <span>Xadrez<span class="menu-sub">Cada peça move à sua maneira</span></span>
     </button>
   </section>
 
@@ -250,6 +320,8 @@
     <div id="c4status" class="status"></div>
     <div id="c4board"></div>
     <button class="btn-restart" onclick="C4.reset()">↻ Jogar de novo</button>
+    <div class="pasta-img"></div>
+    <div class="broc-img"></div>
   </section>
 
   <!-- JOGO DO GALO -->
@@ -261,6 +333,8 @@
     <div id="tttstatus" class="status"></div>
     <div id="tttboard"></div>
     <button class="btn-restart" onclick="TTT.reset()">↻ Jogar de novo</button>
+    <div class="pasta-img"></div>
+    <div class="broc-img"></div>
   </section>
 
   <!-- MOARA (MOINHO) -->
@@ -276,6 +350,34 @@
       <div id="moaratray-a" class="moara-tray"></div>
     </div>
     <button class="btn-restart" onclick="MOARA.reset()">↻ Jogar de novo</button>
+    <div class="pasta-img"></div>
+    <div class="broc-img"></div>
+  </section>
+
+  <!-- DAMAS -->
+  <section id="damas" class="screen">
+    <div class="topbar">
+      <button class="btn-back" onclick="show('menu')">← Menu</button>
+      <h2 class="game-title">Damas</h2>
+    </div>
+    <div id="damasstatus" class="status"></div>
+    <div id="damasboard" class="board8"></div>
+    <button class="btn-restart" onclick="DAMAS.reset()">↻ Jogar de novo</button>
+    <div class="pasta-img"></div>
+    <div class="broc-img"></div>
+  </section>
+
+  <!-- XADREZ -->
+  <section id="xadrez" class="screen">
+    <div class="topbar">
+      <button class="btn-back" onclick="show('menu')">← Menu</button>
+      <h2 class="game-title">Xadrez</h2>
+    </div>
+    <div id="xadrezstatus" class="status"></div>
+    <div id="xadrezboard" class="board8"></div>
+    <button class="btn-restart" onclick="XADREZ.reset()">↻ Jogar de novo</button>
+    <div class="pasta-img"></div>
+    <div class="broc-img"></div>
   </section>
 
 </div>
@@ -283,8 +385,11 @@
 <!-- Painel de vitória (comum a todos os jogos) -->
 <div id="winoverlay" class="win-overlay" onclick="hideWin()">
   <div class="win-card" onclick="event.stopPropagation()">
-    <div class="win-big">Conseguiste!</div>
-    <div class="win-sub">Ganhaste! <span id="winwho"></span></div>
+    <span class="win-fw win-fw-l" aria-hidden="true">🎉</span>
+    <span class="win-fw win-fw-r" aria-hidden="true">🎉</span>
+    <div id="wintitle" class="win-big">Conseguiste!</div>
+    <div id="winsub" class="win-sub">Ganhaste!</div>
+    <div id="winwho" class="win-who"></div>
     <button class="btn-restart" onclick="winRestart(event)">↻ Jogar de novo</button>
   </div>
 </div>
@@ -299,13 +404,36 @@ function show(id) {
   if (id === "c4") { C4.reset(); activeGame = "c4"; }
   if (id === "ttt") { TTT.reset(); activeGame = "ttt"; }
   if (id === "moara") { MOARA.reset(); activeGame = "moara"; }
+  if (id === "damas") { DAMAS.reset(); activeGame = "damas"; }
+  if (id === "xadrez") { XADREZ.reset(); activeGame = "xadrez"; }
   window.scrollTo(0, 0);
 }
 
 // ---------- Painel de vitória (comum a todos os jogos) ----------
 function showWin(whoHTML) {
-  document.getElementById("winwho").innerHTML = whoHTML;
+  document.getElementById("wintitle").textContent = "Conseguiste!";
+  const sub = document.getElementById("winsub");
+  sub.textContent = "Ganhaste!";
+  sub.style.display = "";
+  const who = document.getElementById("winwho");
+  who.innerHTML = whoHTML;
+  who.style.display = "";
+  setConfetti(true);
   document.getElementById("winoverlay").classList.add("show");
+}
+function showDraw() {
+  document.getElementById("wintitle").textContent = "Empate!";
+  const sub = document.getElementById("winsub");
+  sub.innerHTML = '<span style="font-size:1.44em;color:#1e293b">🤝</span>';
+  sub.style.display = "";
+  const who = document.getElementById("winwho");
+  who.innerHTML = "";
+  who.style.display = "none";
+  setConfetti(false);
+  document.getElementById("winoverlay").classList.add("show");
+}
+function setConfetti(on) {
+  document.querySelectorAll(".win-fw").forEach(e => (e.style.display = on ? "" : "none"));
 }
 function hideWin() {
   document.getElementById("winoverlay").classList.remove("show");
@@ -316,10 +444,12 @@ function winRestart(e) {
   if (activeGame === "c4") C4.reset();
   else if (activeGame === "ttt") TTT.reset();
   else if (activeGame === "moara") MOARA.reset();
+  else if (activeGame === "damas") DAMAS.reset();
+  else if (activeGame === "xadrez") XADREZ.reset();
 }
 // Peça grande do vencedor mostrada no painel
 function bigDisc(color) {
-  return `<span style="display:inline-block;width:30px;height:30px;border-radius:50%;background:${color};vertical-align:middle;margin-left:6px"></span>`;
+  return `<span style="display:inline-block;width:44px;height:44px;border-radius:50%;background:${color};vertical-align:middle"></span>`;
 }
 
 // ================= 4 EM LINHA =================
@@ -410,7 +540,7 @@ const C4 = (function () {
     statusEl.innerHTML = `${discHTML(current)} ganhou! 🎉`;
     showWin(bigDisc(current === 1 ? "var(--c4-p1)" : "var(--c4-p2)"));
   }
-  function draw() { statusEl.textContent = "Empate! 🤝"; }
+  function draw() { statusEl.textContent = "Empate! 🤝"; showDraw(); }
 
   return { reset };
 })();
@@ -465,11 +595,11 @@ const TTT = (function () {
       line.forEach(idx => boardEl.querySelector(`[data-i="${idx}"]`).classList.add("win"));
       statusEl.innerHTML = `${statusMark(current)} ganhou! 🎉`;
       const big = current === "X"
-        ? '<span style="font-size:34px;font-weight:900;color:var(--red);line-height:1;vertical-align:middle">✕</span>'
-        : '<span style="display:inline-block;width:26px;height:26px;border:6px solid var(--blue);border-radius:50%;box-sizing:border-box;vertical-align:middle"></span>';
+        ? '<span style="font-size:48px;font-weight:900;color:var(--red);line-height:1;vertical-align:middle">✕</span>'
+        : '<span style="display:inline-block;width:38px;height:38px;border:8px solid var(--blue);border-radius:50%;box-sizing:border-box;vertical-align:middle"></span>';
       showWin(big);
     }
-    else if (cells.every(c => c)) { over = true; statusEl.textContent = "Empate! 🤝"; }
+    else if (cells.every(c => c)) { over = true; statusEl.textContent = "Empate! 🤝"; showDraw(); }
     else { current = current === "X" ? "O" : "X"; updateStatus(); }
   }
 
@@ -666,6 +796,313 @@ const MOARA = (function () {
 
   return { reset, click };
 })();
+
+// ================= DAMAS (simples) =================
+const DAMAS = (function () {
+  const boardEl = document.getElementById("damasboard");
+  const statusEl = document.getElementById("damasstatus");
+  let bd, current, selected, moves, mustJump, over;
+  // bd[r][c] = null | { p:1|2, king:bool }   (1 = brancas em baixo, 2 = vermelhas em cima)
+
+  const other = p => (p === 1 ? 2 : 1);
+  const inside = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8;
+  const dirsFor = pc => pc.king ? [[-1,-1],[-1,1],[1,-1],[1,1]] : (pc.p === 1 ? [[-1,-1],[-1,1]] : [[1,-1],[1,1]]);
+
+  function reset() {
+    bd = Array.from({ length: 8 }, () => Array(8).fill(null));
+    for (let r = 0; r < 8; r++)
+      for (let c = 0; c < 8; c++)
+        if ((r + c) % 2 === 1) {
+          if (r < 3) bd[r][c] = { p: 2, king: false };
+          else if (r > 4) bd[r][c] = { p: 1, king: false };
+        }
+    current = 1; selected = null; moves = []; mustJump = false; over = false;
+    render(); updateStatus();
+  }
+
+  function pieceMoves(r, c) {
+    const pc = bd[r][c];
+    const simple = [], jumps = [];
+    for (const [dr, dc] of dirsFor(pc)) {
+      const nr = r + dr, nc = c + dc;
+      if (inside(nr, nc) && !bd[nr][nc]) simple.push({ r: nr, c: nc });
+      const jr = r + 2 * dr, jc = c + 2 * dc;
+      if (inside(jr, jc) && !bd[jr][jc] && bd[nr] && bd[nr][nc] && bd[nr][nc].p === other(pc.p))
+        jumps.push({ r: jr, c: jc, cr: nr, cc: nc });
+    }
+    return { simple, jumps };
+  }
+
+  function hasAnyMove(p) {
+    for (let r = 0; r < 8; r++)
+      for (let c = 0; c < 8; c++)
+        if (bd[r][c] && bd[r][c].p === p) {
+          const m = pieceMoves(r, c);
+          if (m.simple.length || m.jumps.length) return true;
+        }
+    return false;
+  }
+  const countPieces = p => bd.flat().filter(x => x && x.p === p).length;
+
+  function select(r, c) {
+    selected = { r, c };
+    const m = pieceMoves(r, c);
+    // se está no meio de uma sequência de captura, só saltos
+    moves = mustJump ? m.jumps : m.simple.concat(m.jumps);
+    render();
+  }
+
+  function click(r, c) {
+    if (over) return;
+    const dest = selected && moves.find(m => m.r === r && m.c === c);
+    if (dest) { doMove(dest); return; }
+    if (mustJump) return; // durante multi-captura só o próprio salto é válido
+    if (bd[r][c] && bd[r][c].p === current) select(r, c);
+    else { selected = null; moves = []; render(); }
+  }
+
+  function doMove(dest) {
+    const { r, c } = selected;
+    const pc = bd[r][c];
+    bd[dest.r][dest.c] = pc; bd[r][c] = null;
+    if (dest.cr !== undefined) { bd[dest.cr][dest.cc] = null; } // comeu
+
+    // promoção a dama
+    let promoted = false;
+    if (!pc.king && ((pc.p === 1 && dest.r === 0) || (pc.p === 2 && dest.r === 7))) { pc.king = true; promoted = true; }
+
+    // multi-captura: se comeu e pode voltar a comer (e não acabou de promover), continua
+    if (dest.cr !== undefined && !promoted) {
+      const again = pieceMoves(dest.r, dest.c).jumps;
+      if (again.length) { selected = { r: dest.r, c: dest.c }; mustJump = true; moves = again; render(); updateStatus(); return; }
+    }
+    endTurn();
+  }
+
+  function endTurn() {
+    selected = null; moves = []; mustJump = false;
+    current = other(current);
+    render();
+    if (countPieces(current) === 0 || !hasAnyMove(current)) {
+      over = true;
+      statusEl.innerHTML = `${discHTML(other(current))} ganhou! 🎉`;
+      showWin(damasBig(other(current)));
+      return;
+    }
+    updateStatus();
+  }
+
+  const colorOf = p => (p === 1 ? "#f8fafc" : "#b91c1c");
+  const discHTML = p => `<span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:${colorOf(p)};border:1px solid #94a3b8;vertical-align:-3px;margin:0 4px"></span>`;
+  function updateStatus() {
+    statusEl.innerHTML = mustJump ? `Continua a comer! ${discHTML(current)}` : `Vez das peças ${discHTML(current)}`;
+  }
+
+  function render() {
+    boardEl.innerHTML = "";
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const sq = document.createElement("div");
+        sq.className = "sq " + ((r + c) % 2 === 0 ? "light" : "dark");
+        if (selected && selected.r === r && selected.c === c) sq.className += " sel";
+        if (moves.find(m => m.r === r && m.c === c)) sq.className += " move";
+        sq.onclick = () => click(r, c);
+        const pc = bd[r][c];
+        if (pc) {
+          const d = document.createElement("div");
+          d.className = "dpiece " + (pc.p === 1 ? "p1" : "p2") + (pc.king ? " king" : "");
+          sq.appendChild(d);
+        }
+        boardEl.appendChild(sq);
+      }
+    }
+  }
+
+  return { reset, click };
+})();
+function damasBig(p) {
+  const color = p === 1 ? "#f8fafc" : "#b91c1c";
+  return `<span style="display:inline-block;width:44px;height:44px;border-radius:50%;background:${color};border:2px solid #94a3b8;vertical-align:middle"></span>`;
+}
+
+// ================= XADREZ (movimento das peças) =================
+const XADREZ = (function () {
+  const boardEl = document.getElementById("xadrezboard");
+  const statusEl = document.getElementById("xadrezstatus");
+  let bd, current, selected, moves, over;
+  // bd[r][c] = null | { p:'w'|'b', t:'p'|'n'|'b'|'r'|'q'|'k' }   r0 = topo (pretas)
+
+  const GLYPH = { p: "♟", n: "♞", b: "♝", r: "♜", q: "♛", k: "♚" };
+  const inside = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8;
+  const other = p => (p === "w" ? "b" : "w");
+
+  function reset() {
+    bd = Array.from({ length: 8 }, () => Array(8).fill(null));
+    const back = ["r", "n", "b", "q", "k", "b", "n", "r"];
+    for (let c = 0; c < 8; c++) {
+      bd[0][c] = { p: "b", t: back[c] };
+      bd[1][c] = { p: "b", t: "p" };
+      bd[6][c] = { p: "w", t: "p" };
+      bd[7][c] = { p: "w", t: back[c] };
+    }
+    current = "w"; selected = null; moves = []; over = false;
+    render(); updateStatus();
+  }
+
+  function slide(r, c, dirs, out) {
+    const p = bd[r][c].p;
+    for (const [dr, dc] of dirs) {
+      let nr = r + dr, nc = c + dc;
+      while (inside(nr, nc)) {
+        if (!bd[nr][nc]) out.push({ r: nr, c: nc });
+        else { if (bd[nr][nc].p !== p) out.push({ r: nr, c: nc }); break; }
+        nr += dr; nc += dc;
+      }
+    }
+  }
+
+  function pieceMoves(r, c) {
+    const pc = bd[r][c], p = pc.p, out = [];
+    const add = (nr, nc, capOnly, moveOnly) => {
+      if (!inside(nr, nc)) return;
+      const tgt = bd[nr][nc];
+      if (moveOnly) { if (!tgt) out.push({ r: nr, c: nc }); return; }
+      if (capOnly) { if (tgt && tgt.p !== p) out.push({ r: nr, c: nc }); return; }
+      if (!tgt || tgt.p !== p) out.push({ r: nr, c: nc });
+    };
+    if (pc.t === "p") {
+      const dir = p === "w" ? -1 : 1;
+      const start = p === "w" ? 6 : 1;
+      if (inside(r + dir, c) && !bd[r + dir][c]) {
+        add(r + dir, c, false, true);
+        if (r === start && !bd[r + 2 * dir][c]) add(r + 2 * dir, c, false, true);
+      }
+      add(r + dir, c - 1, true, false);
+      add(r + dir, c + 1, true, false);
+    } else if (pc.t === "n") {
+      for (const [dr, dc] of [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]) add(r + dr, c + dc);
+    } else if (pc.t === "k") {
+      for (const [dr, dc] of [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]]) add(r + dr, c + dc);
+    } else {
+      const diag = [[-1,-1],[-1,1],[1,-1],[1,1]], orth = [[-1,0],[1,0],[0,-1],[0,1]];
+      if (pc.t === "b") slide(r, c, diag, out);
+      if (pc.t === "r") slide(r, c, orth, out);
+      if (pc.t === "q") slide(r, c, diag.concat(orth), out);
+    }
+    return out;
+  }
+
+  function click(r, c) {
+    if (over) return;
+    const dest = selected && moves.find(m => m.r === r && m.c === c);
+    if (dest) { doMove(dest); return; }
+    if (bd[r][c] && bd[r][c].p === current) {
+      selected = { r, c }; moves = pieceMoves(r, c); render();
+    } else { selected = null; moves = []; render(); }
+  }
+
+  function doMove(dest) {
+    const { r, c } = selected;
+    const pc = bd[r][c];
+    const captured = bd[dest.r][dest.c];
+    bd[dest.r][dest.c] = pc; bd[r][c] = null;
+    if (pc.t === "p" && (dest.r === 0 || dest.r === 7)) pc.t = "q"; // promoção a dama
+    selected = null; moves = [];
+    if (captured && captured.t === "k") {
+      over = true; render();
+      statusEl.innerHTML = `${side(current)} ganharam! 🎉`;
+      showWin(xadrezBig(current));
+      return;
+    }
+    current = other(current);
+    render(); updateStatus();
+  }
+
+  const side = p => (p === "w" ? "Brancas" : "Pretas");
+  function updateStatus() { statusEl.innerHTML = `Vez das <b>${side(current)}</b>`; }
+
+  function render() {
+    boardEl.innerHTML = "";
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const sq = document.createElement("div");
+        sq.className = "sq " + ((r + c) % 2 === 0 ? "light" : "dark");
+        if (selected && selected.r === r && selected.c === c) sq.className += " sel";
+        if (moves.find(m => m.r === r && m.c === c)) sq.className += " move";
+        sq.onclick = () => click(r, c);
+        const pc = bd[r][c];
+        if (pc) {
+          const s = document.createElement("span");
+          s.className = "cpiece " + pc.p;
+          s.textContent = GLYPH[pc.t];
+          sq.appendChild(s);
+        }
+        boardEl.appendChild(sq);
+      }
+    }
+  }
+
+  return { reset, click };
+})();
+function xadrezBig(p) {
+  const cls = p === "w" ? "w" : "b";
+  return `<span class="cpiece ${cls}" style="font-size:46px;vertical-align:middle">♚</span>`;
+}
+
+// ---------- Imagem de esparguete cozinhado (por baixo de cada jogo) ----------
+const PASTA_SVG = `
+<svg viewBox="0 0 220 132" class="pasta-svg" xmlns="http://www.w3.org/2000/svg" aria-label="Prato de esparguete">
+  <ellipse cx="110" cy="98" rx="102" ry="30" fill="#e2e8f0"/>
+  <ellipse cx="110" cy="93" rx="90" ry="25" fill="#ffffff"/>
+  <ellipse cx="110" cy="80" rx="78" ry="27" fill="#f2d98d"/>
+  <g fill="none" stroke="#e7c56a" stroke-width="3" stroke-linecap="round">
+    <path d="M44 80 q22 -20 48 -8 t62 4"/>
+    <path d="M38 88 q32 -12 74 -8 t72 8"/>
+    <path d="M50 72 q26 -22 62 -10 t58 10"/>
+    <path d="M58 94 q34 10 74 0 t52 -8"/>
+  </g>
+  <g fill="#e23b2e">
+    <ellipse cx="92" cy="74" rx="17" ry="9"/>
+    <ellipse cx="136" cy="84" rx="15" ry="8"/>
+    <ellipse cx="78" cy="86" rx="11" ry="6"/>
+  </g>
+  <circle cx="100" cy="72" r="11" fill="#8a4b2a"/>
+  <circle cx="130" cy="80" r="10" fill="#8a4b2a"/>
+  <circle cx="97" cy="68" r="3.2" fill="#a5623a"/>
+  <path d="M152 66 q9 -9 18 -4 q-4 9 -18 6 z" fill="#3fa34d"/>
+</svg>`;
+document.querySelectorAll(".pasta-img").forEach(el => { el.innerHTML = PASTA_SVG; });
+
+const BROC_SVG = `
+<svg viewBox="0 0 180 165" class="broc-svg" xmlns="http://www.w3.org/2000/svg" aria-label="Brócolos">
+  <g fill="#a7c957">
+    <rect x="80" y="92" width="20" height="62" rx="9"/>
+    <path d="M84 150 q-12 -30 2 -60 l12 0 q12 30 2 60 z"/>
+  </g>
+  <g fill="#3a7d34">
+    <circle cx="90" cy="62" r="34"/>
+    <circle cx="56" cy="72" r="26"/>
+    <circle cx="124" cy="72" r="26"/>
+    <circle cx="70" cy="44" r="24"/>
+    <circle cx="112" cy="44" r="24"/>
+    <circle cx="90" cy="34" r="24"/>
+  </g>
+  <g fill="#4c9a44">
+    <circle cx="80" cy="52" r="12"/>
+    <circle cx="106" cy="60" r="10"/>
+    <circle cx="64" cy="66" r="9"/>
+    <circle cx="118" cy="60" r="9"/>
+    <circle cx="98" cy="40" r="9"/>
+  </g>
+  <g fill="#2f6b2b">
+    <circle cx="70" cy="56" r="2.6"/>
+    <circle cx="95" cy="50" r="2.6"/>
+    <circle cx="112" cy="54" r="2.6"/>
+    <circle cx="85" cy="66" r="2.6"/>
+    <circle cx="103" cy="70" r="2.6"/>
+  </g>
+</svg>`;
+document.querySelectorAll(".broc-img").forEach(el => { el.innerHTML = BROC_SVG; });
 
 // ---------- Registar service worker (PWA) ----------
 if ("serviceWorker" in navigator) {
