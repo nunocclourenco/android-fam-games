@@ -80,6 +80,8 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   }
   .status .disc { display: inline-block; width: 18px; height: 18px; border-radius: 50%; vertical-align: -3px; margin: 0 4px; }
+  .status-x { color: var(--red); font-weight: 800; font-size: 24px; line-height: 1; vertical-align: -3px; margin: 0 3px; }
+  .status-o { display: inline-block; width: 20px; height: 20px; border: 5px solid var(--blue); border-radius: 50%; box-sizing: border-box; vertical-align: -4px; margin: 0 3px; }
 
   /* ---- 4 em Linha ---- */
   #c4board {
@@ -116,13 +118,22 @@
     aspect-ratio: 1 / 1;
     background: #fff;
     border-radius: 12px;
-    font-size: 56px;
-    font-weight: 800;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer;
   }
-  .tttcell.x { color: var(--red); }
-  .tttcell.o { color: var(--blue); }
+  .mark-x {
+    font-size: clamp(56px, 17vw, 88px);
+    font-weight: 800;
+    line-height: 1;
+    color: var(--red);
+  }
+  .mark-o {
+    width: 64%;
+    aspect-ratio: 1 / 1;
+    border: clamp(8px, 2.6vw, 13px) solid var(--blue);
+    border-radius: 50%;
+    box-sizing: border-box;
+  }
   .tttcell.win { background: #dcfce7; }
 
   .btn-restart {
@@ -281,12 +292,19 @@ const TTT = (function () {
     updateStatus();
   }
 
+  // X = glifo maior; O = círculo perfeito desenhado com uma borda
+  function markHTML(v) {
+    if (v === "X") return '<span class="mark-x">✕</span>';
+    if (v === "O") return '<span class="mark-o"></span>';
+    return "";
+  }
+
   function render() {
     boardEl.innerHTML = "";
     cells.forEach((v, i) => {
       const el = document.createElement("div");
       el.className = "tttcell" + (v ? " " + v.toLowerCase() : "");
-      el.textContent = v;
+      el.innerHTML = markHTML(v);
       el.onclick = () => play(i);
       el.dataset.i = i;
       boardEl.appendChild(el);
@@ -297,10 +315,10 @@ const TTT = (function () {
     if (over || cells[i]) return;
     cells[i] = current;
     const el = boardEl.querySelector(`[data-i="${i}"]`);
-    el.textContent = current;
+    el.innerHTML = markHTML(current);
     el.classList.add(current.toLowerCase());
     const line = winningLine();
-    if (line) { over = true; line.forEach(idx => boardEl.querySelector(`[data-i="${idx}"]`).classList.add("win")); statusEl.textContent = `${current} ganhou! 🎉`; }
+    if (line) { over = true; line.forEach(idx => boardEl.querySelector(`[data-i="${idx}"]`).classList.add("win")); statusEl.innerHTML = `${statusMark(current)} ganhou! 🎉`; }
     else if (cells.every(c => c)) { over = true; statusEl.textContent = "Empate! 🤝"; }
     else { current = current === "X" ? "O" : "X"; updateStatus(); }
   }
@@ -312,7 +330,13 @@ const TTT = (function () {
     return null;
   }
 
-  function updateStatus() { statusEl.textContent = `Vez do ${current}`; }
+  // Mini X/bola para o indicador de vez, no mesmo estilo do tabuleiro
+  function statusMark(v) {
+    if (v === "X") return '<span class="status-x">✕</span>';
+    if (v === "O") return '<span class="status-o"></span>';
+    return "";
+  }
+  function updateStatus() { statusEl.innerHTML = `Vez do ${statusMark(current)}`; }
 
   return { reset };
 })();
