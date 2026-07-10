@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#2563eb" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<title>Sala de Jogos</title>
+<style>
+  :root {
+    --bg: #eff6ff;
+    --blue: #2563eb;
+    --blue-dark: #1e40af;
+    --red: #ef4444;
+    --yellow: #facc15;
+    --ink: #1e293b;
+    --card: #ffffff;
+    /* 4 em Linha: jogador 1 azul, jogador 2 lilás, tabuleiro cinza/rosa claro */
+    --c4-p1: #2563eb;
+    --c4-p2: #b06ae0;
+    --c4-board: #e6dbe1;
+    --c4-empty: #faf5f8;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    display: flex;
+    justify-content: center;
+    min-height: 100%;
+    overscroll-behavior: none;
+  }
+  #app {
+    width: 100%;
+    max-width: 460px;
+    padding: 20px 16px 32px;
+    display: flex;
+    flex-direction: column;
+  }
+  .screen { display: none; flex-direction: column; gap: 18px; }
+  .screen.active { display: flex; }
+
+  h1 { font-size: 30px; margin: 8px 0 0; text-align: center; color: var(--blue-dark); }
+  .subtitle { text-align: center; margin: 0; color: #64748b; }
+
+  .menu-card {
+    background: var(--card);
+    border: none;
+    border-radius: 20px;
+    padding: 22px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 6px 18px rgba(37,99,235,0.12);
+    cursor: pointer;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    text-align: left;
+    transition: transform 0.08s;
+  }
+  .menu-card:active { transform: scale(0.97); }
+  .menu-emoji { font-size: 40px; line-height: 1; }
+  .menu-sub { display: block; font-size: 14px; font-weight: 500; color: #64748b; margin-top: 2px; }
+
+  .topbar { display: flex; align-items: center; gap: 12px; }
+  .btn-back {
+    background: #fff; border: none; border-radius: 12px; padding: 10px 14px;
+    font-size: 18px; font-weight: 700; color: var(--blue); cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .game-title { font-size: 22px; font-weight: 800; color: var(--blue-dark); margin: 0; }
+
+  .status {
+    text-align: center; font-size: 20px; font-weight: 700; min-height: 28px;
+    padding: 10px; border-radius: 14px; background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .status .disc { display: inline-block; width: 18px; height: 18px; border-radius: 50%; vertical-align: -3px; margin: 0 4px; }
+
+  /* ---- 4 em Linha ---- */
+  #c4board {
+    background: var(--c4-board);
+    border-radius: 18px;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    box-shadow: 0 8px 20px rgba(176,106,224,0.25);
+  }
+  .c4cell {
+    aspect-ratio: 1 / 1;
+    background: var(--c4-empty);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .c4cell.p1 { background: var(--c4-p1); }
+  .c4cell.p2 { background: var(--c4-p2); }
+  .c4cell.win { box-shadow: 0 0 0 4px #22c55e inset; }
+
+  /* ---- Jogo do Galo ---- */
+  #tttboard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    background: var(--blue);
+    padding: 8px;
+    border-radius: 18px;
+    box-shadow: 0 8px 20px rgba(37,99,235,0.3);
+  }
+  .tttcell {
+    aspect-ratio: 1 / 1;
+    background: #fff;
+    border-radius: 12px;
+    font-size: 56px;
+    font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .tttcell.x { color: var(--red); }
+  .tttcell.o { color: var(--blue); }
+  .tttcell.win { background: #dcfce7; }
+
+  .btn-restart {
+    background: var(--blue); color: #fff; border: none; border-radius: 14px;
+    padding: 14px; font-size: 18px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+  }
+  .btn-restart:active { transform: scale(0.98); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- MENU -->
+  <section id="menu" class="screen active">
+    <h1>Sala de Jogos</h1>
+    <p class="subtitle">Escolham um jogo — dois jogadores</p>
+    <button class="menu-card" onclick="show('c4')">
+      <span class="menu-emoji">🔵</span>
+      <span>4 em Linha<span class="menu-sub">Encaixa 4 seguidos para ganhar</span></span>
+    </button>
+    <button class="menu-card" onclick="show('ttt')">
+      <span class="menu-emoji">❌</span>
+      <span>Jogo do Galo<span class="menu-sub">3 em linha para ganhar</span></span>
+    </button>
+  </section>
+
+  <!-- 4 EM LINHA -->
+  <section id="c4" class="screen">
+    <div class="topbar">
+      <button class="btn-back" onclick="show('menu')">← Menu</button>
+      <h2 class="game-title">4 em Linha</h2>
+    </div>
+    <div id="c4status" class="status"></div>
+    <div id="c4board"></div>
+    <button class="btn-restart" onclick="C4.reset()">↻ Jogar de novo</button>
+  </section>
+
+  <!-- JOGO DO GALO -->
+  <section id="ttt" class="screen">
+    <div class="topbar">
+      <button class="btn-back" onclick="show('menu')">← Menu</button>
+      <h2 class="game-title">Jogo do Galo</h2>
+    </div>
+    <div id="tttstatus" class="status"></div>
+    <div id="tttboard"></div>
+    <button class="btn-restart" onclick="TTT.reset()">↻ Jogar de novo</button>
+  </section>
+
+</div>
+
+<script>
+// ---------- Navegação entre ecrãs ----------
+function show(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  if (id === "c4") C4.reset();
+  if (id === "ttt") TTT.reset();
+  window.scrollTo(0, 0);
+}
+
+// ================= 4 EM LINHA =================
+const C4 = (function () {
+  const ROWS = 6, COLS = 7;
+  const boardEl = document.getElementById("c4board");
+  const statusEl = document.getElementById("c4status");
+  let grid, current, over;
+
+  function reset() {
+    grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0)); // 0 vazio, 1 vermelho, 2 amarelo
+    current = 1;
+    over = false;
+    render();
+    updateStatus();
+  }
+
+  function render() {
+    boardEl.innerHTML = "";
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const cell = document.createElement("div");
+        cell.className = "c4cell";
+        if (grid[r][c] === 1) cell.classList.add("p1");
+        if (grid[r][c] === 2) cell.classList.add("p2");
+        cell.onclick = () => drop(c);
+        cell.dataset.r = r; cell.dataset.c = c;
+        boardEl.appendChild(cell);
+      }
+    }
+  }
+
+  function cellEl(r, c) {
+    return boardEl.querySelector(`[data-r="${r}"][data-c="${c}"]`);
+  }
+
+  function drop(col) {
+    if (over) return;
+    // encontra a linha mais baixa livre nesta coluna (regra da gravidade)
+    for (let r = ROWS - 1; r >= 0; r--) {
+      if (grid[r][col] === 0) {
+        grid[r][col] = current;
+        const el = cellEl(r, col);
+        el.classList.add(current === 1 ? "p1" : "p2");
+        const line = winningLine(r, col);
+        if (line) { over = true; line.forEach(([wr, wc]) => cellEl(wr, wc).classList.add("win")); win(); }
+        else if (isFull()) { over = true; draw(); }
+        else { current = current === 1 ? 2 : 1; updateStatus(); }
+        return;
+      }
+    }
+    // coluna cheia -> nada acontece
+  }
+
+  function isFull() { return grid[0].every(v => v !== 0); }
+
+  function winningLine(r, c) {
+    const p = grid[r][c];
+    const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+    for (const [dr, dc] of dirs) {
+      const line = [[r, c]];
+      for (const s of [1, -1]) {
+        let nr = r + dr*s, nc = c + dc*s;
+        while (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && grid[nr][nc] === p) {
+          line.push([nr, nc]); nr += dr*s; nc += dc*s;
+        }
+      }
+      if (line.length >= 4) return line;
+    }
+    return null;
+  }
+
+  const discHTML = p => `<span class="disc" style="background:${p===1?'var(--c4-p1)':'var(--c4-p2)'}"></span>`;
+  function updateStatus() { statusEl.innerHTML = `Vez do ${discHTML(current)}`; }
+  function win() { statusEl.innerHTML = `${discHTML(current)} ganhou! 🎉`; }
+  function draw() { statusEl.textContent = "Empate! 🤝"; }
+
+  return { reset };
+})();
+
+// ================= JOGO DO GALO =================
+const TTT = (function () {
+  const boardEl = document.getElementById("tttboard");
+  const statusEl = document.getElementById("tttstatus");
+  const LINES = [
+    [0,1,2],[3,4,5],[6,7,8],  // linhas
+    [0,3,6],[1,4,7],[2,5,8],  // colunas
+    [0,4,8],[2,4,6]           // diagonais
+  ];
+  let cells, current, over;
+
+  function reset() {
+    cells = Array(9).fill("");
+    current = "X";
+    over = false;
+    render();
+    updateStatus();
+  }
+
+  function render() {
+    boardEl.innerHTML = "";
+    cells.forEach((v, i) => {
+      const el = document.createElement("div");
+      el.className = "tttcell" + (v ? " " + v.toLowerCase() : "");
+      el.textContent = v;
+      el.onclick = () => play(i);
+      el.dataset.i = i;
+      boardEl.appendChild(el);
+    });
+  }
+
+  function play(i) {
+    if (over || cells[i]) return;
+    cells[i] = current;
+    const el = boardEl.querySelector(`[data-i="${i}"]`);
+    el.textContent = current;
+    el.classList.add(current.toLowerCase());
+    const line = winningLine();
+    if (line) { over = true; line.forEach(idx => boardEl.querySelector(`[data-i="${idx}"]`).classList.add("win")); statusEl.textContent = `${current} ganhou! 🎉`; }
+    else if (cells.every(c => c)) { over = true; statusEl.textContent = "Empate! 🤝"; }
+    else { current = current === "X" ? "O" : "X"; updateStatus(); }
+  }
+
+  function winningLine() {
+    for (const [a, b, c] of LINES) {
+      if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) return [a, b, c];
+    }
+    return null;
+  }
+
+  function updateStatus() { statusEl.textContent = `Vez do ${current}`; }
+
+  return { reset };
+})();
+
+// ---------- Registar service worker (PWA) ----------
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
