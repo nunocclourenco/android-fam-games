@@ -1,5 +1,6 @@
-// Service worker simples: cache dos ficheiros para funcionar offline.
-const CACHE = "sala-de-jogos-v1";
+// Service worker: mostra sempre a versão mais recente quando há internet,
+// e usa a cópia guardada só quando está offline.
+const CACHE = "sala-de-jogos-v2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -22,8 +23,17 @@ self.addEventListener("activate", (e) => {
   self.clients.claim();
 });
 
+// Network-first: tenta a rede primeiro (versão nova) e atualiza a cache;
+// se não houver internet, usa a cópia guardada.
 self.addEventListener("fetch", (e) => {
+  if (e.request.method !== "GET") return;
   e.respondWith(
-    caches.match(e.request).then((r) => r || fetch(e.request))
+    fetch(e.request)
+      .then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put(e.request, copy));
+        return res;
+      })
+      .catch(() => caches.match(e.request))
   );
 });
