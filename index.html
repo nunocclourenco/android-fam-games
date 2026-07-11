@@ -191,6 +191,10 @@
   .mpoint-sel { stroke: #ec4899; stroke-width: 3.5; }
   .mpoint-remove { stroke: #ef4444; stroke-width: 3.5; }
 
+  /* ---- Mochila no menu ---- */
+  .menu-mochila { text-align: center; margin-top: 90px; }
+  .mochila-svg { width: 300px; max-width: 92%; height: auto; display: inline-block; }
+
   /* ---- Tabuleiro 8x8 (Damas e Xadrez) ---- */
   .board8 {
     display: grid;
@@ -201,19 +205,19 @@
     box-shadow: 0 8px 20px rgba(0,0,0,0.22);
   }
   .sq { position: relative; display: flex; align-items: center; justify-content: center; }
-  .sq.light { background: #f0d9b5; }
-  .sq.dark { background: #b58863; }
+  .sq.light { background: #f2f2f2; }
+  .sq.dark { background: #1a1a1a; }
   .sq.sel { box-shadow: inset 0 0 0 4px #ec4899; }
   .sq.move::after {
     content: ""; position: absolute; width: 30%; height: 30%;
-    border-radius: 50%; background: rgba(0,0,0,0.28);
+    border-radius: 50%; background: rgba(236,72,153,0.85);
   }
   /* peças de damas */
   .dpiece {
     width: 74%; height: 74%; border-radius: 50%; position: relative;
     box-shadow: inset 0 3px 4px rgba(255,255,255,0.35), inset 0 -4px 5px rgba(0,0,0,0.3), 0 2px 3px rgba(0,0,0,0.35);
   }
-  .dpiece.p1 { background: #f8fafc; border: 2px solid #cbd5e1; }
+  .dpiece.p1 { background: #e5d6b0; border: 2px solid #bda981; }
   .dpiece.p2 { background: #ef4444; border: 2px solid #b91c1c; }
   .dpiece.king::after {
     content: "♛"; position: absolute; inset: 0; display: flex;
@@ -225,8 +229,34 @@
   .cpiece.w { color: #ffffff; text-shadow: 0 1px 1px #000, 0 -1px 1px #000, 1px 0 1px #000, -1px 0 1px #000; }
   .cpiece.b { color: #1f2937; text-shadow: 0 1px 2px rgba(0,0,0,0.35); }
 
+  /* ---- Jogos matemáticos ---- */
+  .ops { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .op-btn {
+    background: #fff; border: 2px solid #cbd5e1; border-radius: 12px;
+    padding: 8px 16px; font-size: 18px; font-weight: 800; cursor: pointer; color: #1e293b;
+  }
+  .op-btn.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+  .mathq { text-align: center; font-size: 46px; font-weight: 900; color: var(--blue-dark); margin: 6px 0; min-height: 52px; }
+  .mathopts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-width: 360px; margin: 0 auto; width: 100%; }
+  .opt-btn {
+    background: #fff; border: none; border-radius: 16px; padding: 20px;
+    font-size: 28px; font-weight: 800; cursor: pointer; color: #1e293b;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .opt-btn:active { transform: scale(0.97); }
+  .opt-btn.right { background: #22c55e; color: #fff; }
+  .opt-btn.wrong { background: #ef4444; color: #fff; }
+  /* corrida (2 jogadores) */
+  .race-panel { background: #eff6ff; border-radius: 16px; padding: 14px; }
+  .race-panel.flip { transform: rotate(180deg); }
+  .race-head { text-align: center; font-weight: 800; font-size: 18px; margin-bottom: 6px; }
+  .race-q { text-align: center; font-size: 34px; font-weight: 900; color: var(--blue-dark); margin: 6px 0; }
+  .race-opts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; max-width: 340px; margin: 0 auto; }
+  .race-opts .opt-btn { padding: 14px; font-size: 22px; }
+  .race-mid { text-align: center; font-weight: 900; font-size: 22px; color: #64748b; margin: 6px 0; }
+
   /* ---- Imagem de esparguete ---- */
-  .pasta-img { text-align: center; margin-top: 2px; }
+  .pasta-img { text-align: center; margin-top: -32px; }
   .pasta-svg { width: 90%; max-width: 340px; height: auto; display: inline-block; }
   .broc-img { text-align: center; margin-top: 14px; }
   .broc-svg { width: 46%; max-width: 190px; height: auto; display: inline-block; }
@@ -305,10 +335,27 @@
       </span>
       <span>Damas<span class="menu-sub">Come na diagonal e faz damas</span></span>
     </button>
-    <button class="menu-card" onclick="show('xadrez')">
-      <span class="menu-emoji" aria-hidden="true">♟️</span>
-      <span>Xadrez<span class="menu-sub">Cada peça move à sua maneira</span></span>
+    <button class="menu-card" onclick="show('contas')">
+      <span class="menu-emoji" aria-hidden="true">➕</span>
+      <span>Contas Rápidas<span class="menu-sub">Responde a contas e conta os acertos</span></span>
     </button>
+    <button class="menu-card" onclick="show('corrida')">
+      <span class="menu-emoji" aria-hidden="true">🏁</span>
+      <span>Corrida das Contas<span class="menu-sub">Dois jogadores: quem acerta primeiro</span></span>
+    </button>
+    <div class="menu-mochila" aria-hidden="true">
+      <svg viewBox="0 0 120 140" class="mochila-svg" xmlns="http://www.w3.org/2000/svg" aria-label="Mochila">
+        <path d="M40 32 Q30 56 40 96" fill="none" stroke="#7f1d1d" stroke-width="9" stroke-linecap="round"/>
+        <path d="M80 32 Q90 56 80 96" fill="none" stroke="#7f1d1d" stroke-width="9" stroke-linecap="round"/>
+        <path d="M50 26 Q60 10 70 26" fill="none" stroke="#991b1b" stroke-width="7" stroke-linecap="round"/>
+        <rect x="26" y="32" width="68" height="86" rx="22" fill="#ef4444" stroke="#991b1b" stroke-width="3"/>
+        <path d="M26 54 Q60 36 94 54 L94 42 Q60 26 26 42 Z" fill="#dc2626"/>
+        <rect x="38" y="74" width="44" height="38" rx="12" fill="#dc2626" stroke="#991b1b" stroke-width="2.5"/>
+        <path d="M42 82 Q60 72 78 82" fill="none" stroke="#fee2e2" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="60" cy="94" r="4" fill="#fee2e2"/>
+        <path d="M34 60 Q60 48 86 60" fill="none" stroke="#fee2e2" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+    </div>
   </section>
 
   <!-- 4 EM LINHA -->
@@ -319,7 +366,6 @@
     </div>
     <div id="c4status" class="status"></div>
     <div id="c4board"></div>
-    <button class="btn-restart" onclick="C4.reset()">↻ Jogar de novo</button>
     <div class="pasta-img"></div>
     <div class="broc-img"></div>
   </section>
@@ -332,7 +378,6 @@
     </div>
     <div id="tttstatus" class="status"></div>
     <div id="tttboard"></div>
-    <button class="btn-restart" onclick="TTT.reset()">↻ Jogar de novo</button>
     <div class="pasta-img"></div>
     <div class="broc-img"></div>
   </section>
@@ -349,7 +394,6 @@
       <div id="moaraboard"></div>
       <div id="moaratray-a" class="moara-tray"></div>
     </div>
-    <button class="btn-restart" onclick="MOARA.reset()">↻ Jogar de novo</button>
     <div class="pasta-img"></div>
     <div class="broc-img"></div>
   </section>
@@ -362,22 +406,33 @@
     </div>
     <div id="damasstatus" class="status"></div>
     <div id="damasboard" class="board8"></div>
-    <button class="btn-restart" onclick="DAMAS.reset()">↻ Jogar de novo</button>
     <div class="pasta-img"></div>
     <div class="broc-img"></div>
   </section>
 
-  <!-- XADREZ -->
-  <section id="xadrez" class="screen">
+  <!-- CONTAS RÁPIDAS -->
+  <section id="contas" class="screen">
     <div class="topbar">
       <button class="btn-back" onclick="show('menu')">← Menu</button>
-      <h2 class="game-title">Xadrez</h2>
+      <h2 class="game-title">Contas Rápidas</h2>
     </div>
-    <div id="xadrezstatus" class="status"></div>
-    <div id="xadrezboard" class="board8"></div>
-    <button class="btn-restart" onclick="XADREZ.reset()">↻ Jogar de novo</button>
+    <div id="contas-op" class="ops"></div>
+    <div id="contas-status" class="status"></div>
+    <div id="contas-q" class="mathq"></div>
+    <div id="contas-opts" class="mathopts"></div>
     <div class="pasta-img"></div>
     <div class="broc-img"></div>
+  </section>
+
+  <!-- CORRIDA DAS CONTAS -->
+  <section id="corrida" class="screen">
+    <div class="topbar">
+      <button class="btn-back" onclick="show('menu')">← Menu</button>
+      <h2 class="game-title">Corrida das Contas</h2>
+    </div>
+    <div id="corrida-top" class="race-panel flip"></div>
+    <div id="corrida-mid" class="race-mid"></div>
+    <div id="corrida-bot" class="race-panel"></div>
   </section>
 
 </div>
@@ -405,7 +460,8 @@ function show(id) {
   if (id === "ttt") { TTT.reset(); activeGame = "ttt"; }
   if (id === "moara") { MOARA.reset(); activeGame = "moara"; }
   if (id === "damas") { DAMAS.reset(); activeGame = "damas"; }
-  if (id === "xadrez") { XADREZ.reset(); activeGame = "xadrez"; }
+  if (id === "contas") { CONTAS.reset(); activeGame = "contas"; }
+  if (id === "corrida") { CORRIDA.reset(); activeGame = "corrida"; }
   window.scrollTo(0, 0);
 }
 
@@ -445,7 +501,7 @@ function winRestart(e) {
   else if (activeGame === "ttt") TTT.reset();
   else if (activeGame === "moara") MOARA.reset();
   else if (activeGame === "damas") DAMAS.reset();
-  else if (activeGame === "xadrez") XADREZ.reset();
+  else if (activeGame === "corrida") CORRIDA.reset();
 }
 // Peça grande do vencedor mostrada no painel
 function bigDisc(color) {
@@ -925,129 +981,140 @@ function damasBig(p) {
   return `<span style="display:inline-block;width:44px;height:44px;border-radius:50%;background:${color};border:2px solid #94a3b8;vertical-align:middle"></span>`;
 }
 
-// ================= XADREZ (movimento das peças) =================
-const XADREZ = (function () {
-  const boardEl = document.getElementById("xadrezboard");
-  const statusEl = document.getElementById("xadrezstatus");
-  let bd, current, selected, moves, over;
-  // bd[r][c] = null | { p:'w'|'b', t:'p'|'n'|'b'|'r'|'q'|'k' }   r0 = topo (pretas)
-
-  const GLYPH = { p: "♟", n: "♞", b: "♝", r: "♜", q: "♛", k: "♚" };
-  const inside = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8;
-  const other = p => (p === "w" ? "b" : "w");
-
-  function reset() {
-    bd = Array.from({ length: 8 }, () => Array(8).fill(null));
-    const back = ["r", "n", "b", "q", "k", "b", "n", "r"];
-    for (let c = 0; c < 8; c++) {
-      bd[0][c] = { p: "b", t: back[c] };
-      bd[1][c] = { p: "b", t: "p" };
-      bd[6][c] = { p: "w", t: "p" };
-      bd[7][c] = { p: "w", t: back[c] };
-    }
-    current = "w"; selected = null; moves = []; over = false;
-    render(); updateStatus();
-  }
-
-  function slide(r, c, dirs, out) {
-    const p = bd[r][c].p;
-    for (const [dr, dc] of dirs) {
-      let nr = r + dr, nc = c + dc;
-      while (inside(nr, nc)) {
-        if (!bd[nr][nc]) out.push({ r: nr, c: nc });
-        else { if (bd[nr][nc].p !== p) out.push({ r: nr, c: nc }); break; }
-        nr += dr; nc += dc;
-      }
-    }
-  }
-
-  function pieceMoves(r, c) {
-    const pc = bd[r][c], p = pc.p, out = [];
-    const add = (nr, nc, capOnly, moveOnly) => {
-      if (!inside(nr, nc)) return;
-      const tgt = bd[nr][nc];
-      if (moveOnly) { if (!tgt) out.push({ r: nr, c: nc }); return; }
-      if (capOnly) { if (tgt && tgt.p !== p) out.push({ r: nr, c: nc }); return; }
-      if (!tgt || tgt.p !== p) out.push({ r: nr, c: nc });
-    };
-    if (pc.t === "p") {
-      const dir = p === "w" ? -1 : 1;
-      const start = p === "w" ? 6 : 1;
-      if (inside(r + dir, c) && !bd[r + dir][c]) {
-        add(r + dir, c, false, true);
-        if (r === start && !bd[r + 2 * dir][c]) add(r + 2 * dir, c, false, true);
-      }
-      add(r + dir, c - 1, true, false);
-      add(r + dir, c + 1, true, false);
-    } else if (pc.t === "n") {
-      for (const [dr, dc] of [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]) add(r + dr, c + dc);
-    } else if (pc.t === "k") {
-      for (const [dr, dc] of [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]]) add(r + dr, c + dc);
-    } else {
-      const diag = [[-1,-1],[-1,1],[1,-1],[1,1]], orth = [[-1,0],[1,0],[0,-1],[0,1]];
-      if (pc.t === "b") slide(r, c, diag, out);
-      if (pc.t === "r") slide(r, c, orth, out);
-      if (pc.t === "q") slide(r, c, diag.concat(orth), out);
-    }
-    return out;
-  }
-
-  function click(r, c) {
-    if (over) return;
-    const dest = selected && moves.find(m => m.r === r && m.c === c);
-    if (dest) { doMove(dest); return; }
-    if (bd[r][c] && bd[r][c].p === current) {
-      selected = { r, c }; moves = pieceMoves(r, c); render();
-    } else { selected = null; moves = []; render(); }
-  }
-
-  function doMove(dest) {
-    const { r, c } = selected;
-    const pc = bd[r][c];
-    const captured = bd[dest.r][dest.c];
-    bd[dest.r][dest.c] = pc; bd[r][c] = null;
-    if (pc.t === "p" && (dest.r === 0 || dest.r === 7)) pc.t = "q"; // promoção a dama
-    selected = null; moves = [];
-    if (captured && captured.t === "k") {
-      over = true; render();
-      statusEl.innerHTML = `${side(current)} ganharam! 🎉`;
-      showWin(xadrezBig(current));
-      return;
-    }
-    current = other(current);
-    render(); updateStatus();
-  }
-
-  const side = p => (p === "w" ? "Brancas" : "Pretas");
-  function updateStatus() { statusEl.innerHTML = `Vez das <b>${side(current)}</b>`; }
-
-  function render() {
-    boardEl.innerHTML = "";
-    for (let r = 0; r < 8; r++) {
-      for (let c = 0; c < 8; c++) {
-        const sq = document.createElement("div");
-        sq.className = "sq " + ((r + c) % 2 === 0 ? "light" : "dark");
-        if (selected && selected.r === r && selected.c === c) sq.className += " sel";
-        if (moves.find(m => m.r === r && m.c === c)) sq.className += " move";
-        sq.onclick = () => click(r, c);
-        const pc = bd[r][c];
-        if (pc) {
-          const s = document.createElement("span");
-          s.className = "cpiece " + pc.p;
-          s.textContent = GLYPH[pc.t];
-          sq.appendChild(s);
-        }
-        boardEl.appendChild(sq);
-      }
-    }
-  }
-
-  return { reset, click };
-})();
-function xadrezBig(p) {
-  const cls = p === "w" ? "w" : "b";
-  return `<span class="cpiece ${cls}" style="font-size:46px;vertical-align:middle">♚</span>`;
+// ================= Ajudas de matemática =================
+function mathGen(op) {
+  const pick = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+  const o = op === "mix" ? ["+", "-", "x"][pick(0, 2)] : op;
+  let a, b, ans, sym;
+  if (o === "+") { a = pick(0, 20); b = pick(0, 20); ans = a + b; sym = "+"; }
+  else if (o === "-") { a = pick(0, 20); b = pick(0, a); ans = a - b; sym = "−"; }
+  else { a = pick(1, 10); b = pick(1, 10); ans = a * b; sym = "×"; }
+  return { text: `${a} ${sym} ${b}`, answer: ans };
 }
+function mathOptions(answer) {
+  const set = new Set([answer]);
+  let guard = 0;
+  while (set.size < 4 && guard++ < 50) {
+    let d = answer + (Math.floor(Math.random() * 9) - 4);
+    if (d < 0) d = Math.abs(d) + 1;
+    set.add(d);
+  }
+  let n = answer + 1;
+  while (set.size < 4) set.add(n++);
+  const arr = [...set];
+  for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+  return arr;
+}
+
+// ================= CONTAS RÁPIDAS (1 jogador) =================
+const CONTAS = (function () {
+  const opsEl = document.getElementById("contas-op");
+  const statusEl = document.getElementById("contas-status");
+  const qEl = document.getElementById("contas-q");
+  const optsEl = document.getElementById("contas-opts");
+  const TOTAL = 10;
+  let op, index, score, q;
+
+  function reset() { op = "mix"; renderOps(); startQuiz(); }
+  function setOp(o) { op = o; renderOps(); startQuiz(); }
+  function startQuiz() { index = 0; score = 0; next(); }
+
+  function next() {
+    q = mathGen(op); q.options = mathOptions(q.answer); q.answered = false;
+    qEl.textContent = q.text + " = ?";
+    optsEl.innerHTML = "";
+    q.options.forEach(v => {
+      const b = document.createElement("button");
+      b.className = "opt-btn"; b.textContent = v; b.dataset.v = v;
+      b.onclick = () => answer(v, b);
+      optsEl.appendChild(b);
+    });
+    updateStatus();
+  }
+
+  function answer(val, btn) {
+    if (q.answered) return;
+    q.answered = true;
+    if (val === q.answer) { score++; btn.classList.add("right"); }
+    else {
+      btn.classList.add("wrong");
+      [...optsEl.children].forEach(b => { if (+b.dataset.v === q.answer) b.classList.add("right"); });
+    }
+    index++;
+    updateStatus();
+    setTimeout(() => { index < TOTAL ? next() : finish(); }, 750);
+  }
+
+  function finish() {
+    const emoji = score >= 9 ? "🏆" : score >= 6 ? "😃" : score >= 3 ? "🙂" : "💪";
+    qEl.textContent = `${emoji} Acertaste ${score} de ${TOTAL}!`;
+    statusEl.textContent = "";
+    optsEl.innerHTML = "";
+    const b = document.createElement("button");
+    b.className = "btn-restart"; b.textContent = "↻ Jogar de novo";
+    b.style.gridColumn = "1 / -1";
+    b.onclick = () => startQuiz();
+    optsEl.appendChild(b);
+  }
+
+  function updateStatus() { statusEl.textContent = `Pergunta ${Math.min(index + 1, TOTAL)}/${TOTAL} · Acertos: ${score}`; }
+
+  function renderOps() {
+    opsEl.innerHTML = "";
+    [["+", "+"], ["−", "-"], ["×", "x"], ["Misto", "mix"]].forEach(([label, val]) => {
+      const b = document.createElement("button");
+      b.className = "op-btn" + (op === val ? " active" : "");
+      b.textContent = label; b.onclick = () => setOp(val);
+      opsEl.appendChild(b);
+    });
+  }
+
+  return { reset };
+})();
+
+// ================= CORRIDA DAS CONTAS (2 jogadores) =================
+const CORRIDA = (function () {
+  const topEl = document.getElementById("corrida-top");
+  const botEl = document.getElementById("corrida-bot");
+  const midEl = document.getElementById("corrida-mid");
+  const TARGET = 5;
+  let q, scores, over;
+
+  function reset() { scores = { 1: 0, 2: 0 }; over = false; next(); }
+  function next() { q = mathGen("mix"); q.options = mathOptions(q.answer); render(); }
+
+  function answer(p, val, btn) {
+    if (over) return;
+    if (val === q.answer) {
+      scores[p]++;
+      if (scores[p] >= TARGET) { finish(p); } else { next(); }
+    } else if (btn) {
+      btn.classList.add("wrong");
+      setTimeout(() => btn.classList.remove("wrong"), 400);
+    }
+  }
+
+  function finish(winner) {
+    over = true; render();
+    const color = winner === 1 ? "var(--c4-p1)" : "var(--c4-p2)";
+    showWin(`Jogador ${winner} <span style="display:inline-block;width:34px;height:34px;border-radius:50%;background:${color};vertical-align:middle;margin-left:6px"></span>`);
+  }
+
+  function panel(p) {
+    const color = p === 1 ? "var(--c4-p1)" : "var(--c4-p2)";
+    const opts = q.options.map(v => `<button class="opt-btn" onclick="CORRIDA.answer(${p},${v},this)">${v}</button>`).join("");
+    return `<div class="race-head" style="color:${color}">Jogador ${p} — ${scores[p]}</div>
+            <div class="race-q">${q.text} = ?</div>
+            <div class="race-opts">${opts}</div>`;
+  }
+  function render() {
+    topEl.innerHTML = panel(2);
+    botEl.innerHTML = panel(1);
+    midEl.textContent = `${scores[1]}  —  ${scores[2]}   (até ${TARGET})`;
+  }
+
+  return { reset, answer };
+})();
 
 // ---------- Imagem de esparguete cozinhado (por baixo de cada jogo) ----------
 const PASTA_SVG = `
